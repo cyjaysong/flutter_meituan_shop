@@ -1,10 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:scroll_test/page1.dart';
-import 'package:scroll_test/page2.dart';
-import 'package:scroll_test/page3.dart';
-import 'package:scroll_test/shop/shop_scroll_coordinator.dart';
+import 'page1.dart';
+import 'page2.dart';
+import 'page3.dart';
+import 'shop/shop_scroll_coordinator.dart';
 
 import 'shop/shop_scroll_controller.dart';
 
