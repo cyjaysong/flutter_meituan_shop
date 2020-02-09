@@ -1,4 +1,4 @@
-# flutter_meitaun_shop
+# flutter_meituan_shop
 
 A new Flutter project.
 
