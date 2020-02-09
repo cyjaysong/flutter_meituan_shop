@@ -67,7 +67,7 @@ class ShopScrollCoordinator {
         minScrollExtent, maxScrollExtent, true);
   }
 
-  /// 当默认位置不为0时，主部件已下拉距离超过默认位置，但操过的距离不大于该值时，
+  /// 当默认位置不为0时，主部件已下拉距离超过默认位置，但超过的距离不大于该值时，
   /// 若手指离开屏幕，主部件头部会回弹至默认位置
   double _scrollRedundancy = 80;
 
