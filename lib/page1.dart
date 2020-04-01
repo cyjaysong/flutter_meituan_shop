@@ -32,7 +32,7 @@ class _Page1State extends State<Page1> {
         Expanded(
           child: ListView.builder(
             padding: EdgeInsets.all(0),
-            physics: ClampingScrollPhysics(),
+            physics: AlwaysScrollableScrollPhysics(),
             controller: _listScrollController1,
             itemExtent: 50.0,
             itemCount: 20,
@@ -50,7 +50,7 @@ class _Page1State extends State<Page1> {
           flex: 4,
           child: ListView.builder(
             padding: EdgeInsets.all(0),
-            physics: ClampingScrollPhysics(),
+            physics: AlwaysScrollableScrollPhysics(),
             controller: _listScrollController2,
             itemExtent: 200.0,
             itemCount: 30,
