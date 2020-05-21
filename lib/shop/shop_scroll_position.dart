@@ -47,7 +47,7 @@ class ShopScrollPosition extends ScrollPosition
   @override
   void absorb(ScrollPosition other) {
     super.absorb(other);
-    if (other is! ScrollPositionWithSingleContext) {
+    if (other is! ShopScrollPosition) {
       goIdle();
       return;
     }
