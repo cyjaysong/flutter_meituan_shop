@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'shop_scroll_controller.dart';
@@ -8,9 +8,10 @@ import 'shop_scroll_position.dart';
 enum PageExpandState { NotExpand, Expanding, Expanded }
 
 /// 协调器
+///
+/// 页面 Primary [CustomScrollView] 控制
 class ShopScrollCoordinator {
-  /// 页面主 CustomScrollView 控制
-  final String pageLabel = "page";
+  final String pageLabel = 'page';
 
   ShopScrollController _pageScrollController;
   double Function() pinnedHeaderSliverHeightBuilder;
@@ -26,8 +27,11 @@ class ShopScrollCoordinator {
   ShopScrollController pageScrollController([double initialOffset = 0.0]) {
     assert(initialOffset != null, initialOffset >= 0.0);
     _pageInitialOffset = initialOffset;
-    _pageScrollController = ShopScrollController(this,
-        debugLabel: pageLabel, initialScrollOffset: initialOffset);
+    _pageScrollController = ShopScrollController(
+      this,
+      debugLabel: pageLabel,
+      initialScrollOffset: initialOffset,
+    );
     return _pageScrollController;
   }
 
@@ -36,20 +40,25 @@ class ShopScrollCoordinator {
       ShopScrollController(this, debugLabel: debugLabel);
 
   /// 子部件滑动数据协调
-  /// [userScrollDirection]用户滑动方向
-  /// [position]被滑动的子部件的位置信息
-  void applyUserOffset(double delta,
-      [ScrollDirection userScrollDirection, ShopScrollPosition position]) {
+  ///
+  /// [userScrollDirection] 用户滑动方向
+  /// [position] 被滑动的子部件的位置信息
+  void applyUserOffset(
+    double delta, [
+    ScrollDirection userScrollDirection,
+    ShopScrollPosition position,
+  ]) {
     if (userScrollDirection == ScrollDirection.reverse) {
       updateUserScrollDirection(_pageScrollPosition, userScrollDirection);
-      final innerDelta = _pageScrollPosition.applyClampedDragUpdate(delta);
+      final double innerDelta =
+          _pageScrollPosition.applyClampedDragUpdate(delta);
       if (innerDelta != 0.0) {
         updateUserScrollDirection(position, userScrollDirection);
         position.applyFullDragUpdate(innerDelta);
       }
     } else {
       updateUserScrollDirection(position, userScrollDirection);
-      final outerDelta = position.applyClampedDragUpdate(delta);
+      final double outerDelta = position.applyClampedDragUpdate(delta);
       if (outerDelta != 0.0) {
         updateUserScrollDirection(_pageScrollPosition, userScrollDirection);
         _pageScrollPosition.applyFullDragUpdate(outerDelta);
@@ -69,7 +78,7 @@ class ShopScrollCoordinator {
 
   /// 当默认位置不为0时，主部件已下拉距离超过默认位置，但超过的距离不大于该值时，
   /// 若手指离开屏幕，主部件头部会回弹至默认位置
-  double _scrollRedundancy = 80;
+  final double _scrollRedundancy = 80;
 
   /// 当前页面Header最大程度展开状态
   PageExpandState pageExpand = PageExpandState.NotExpand;
@@ -81,15 +90,21 @@ class ShopScrollCoordinator {
       if (pageExpand == PageExpandState.NotExpand &&
           _pageInitialOffset - _pagePixels > _scrollRedundancy) {
         _pageScrollPosition
-            .animateTo(0.0,
-                duration: const Duration(milliseconds: 400), curve: Curves.ease)
-            .then((value) => pageExpand = PageExpandState.Expanded);
+            .animateTo(
+              0.0,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.ease,
+            )
+            .then((_) => pageExpand = PageExpandState.Expanded);
       } else {
         pageExpand = PageExpandState.Expanding;
         _pageScrollPosition
-            .animateTo(_pageInitialOffset,
-                duration: const Duration(milliseconds: 400), curve: Curves.ease)
-            .then((value) => pageExpand = PageExpandState.NotExpand);
+            .animateTo(
+              _pageInitialOffset,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.ease,
+            )
+            .then((_) => pageExpand = PageExpandState.NotExpand);
       }
     }
   }
@@ -101,10 +116,12 @@ class ShopScrollCoordinator {
     position.didUpdateScrollDirection(value);
   }
 
-  /// 以特定的速度开始一个物理驱动的模拟，该模拟确定[pixels]位置。
-  /// 此方法遵从[ScrollPhysics.createBallisticSimulation]，该方法通常在当前位置超出
-  /// 范围时提供滑动模拟，而在当前位置超出范围但具有非零速度时提供摩擦模拟。
-  /// 速度应以每秒逻辑像素为单位。
+  /// 以特定的速度开始一个物理驱动的模拟，该模拟确定 [pixels] 位置。
+  ///
+  /// 此方法遵从 [ScrollPhysics.createBallisticSimulation]，通常在当前位置超出范围时
+  /// 提供滑动模拟，而在当前位置超出范围但具有非零速度时提供摩擦模拟。
+  ///
+  /// 速度应以 逻辑像素/秒 为单位。
   void goBallistic(double velocity) =>
       _pageScrollPosition.goBallistic(velocity);
 }

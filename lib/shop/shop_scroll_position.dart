@@ -10,19 +10,15 @@ import 'shop_scroll_coordinator.dart';
 /// 滑动位置信息
 class ShopScrollPosition extends ScrollPosition
     implements ScrollActivityDelegate {
-  final ShopScrollCoordinator coordinator; // 协调器
-  ScrollDragController _currentDrag;
-  double _heldPreviousVelocity = 0.0;
-
-  ShopScrollPosition(
-      {@required ScrollPhysics physics,
-      @required ScrollContext context,
-      double initialPixels = 0.0,
-      bool keepScrollOffset = true,
-      ScrollPosition oldPosition,
-      String debugLabel,
-      @required this.coordinator})
-      : super(
+  ShopScrollPosition({
+    @required ScrollPhysics physics,
+    @required ScrollContext context,
+    double initialPixels = 0.0,
+    bool keepScrollOffset = true,
+    ScrollPosition oldPosition,
+    String debugLabel,
+    @required this.coordinator,
+  }) : super(
           physics: physics,
           context: context,
           keepScrollOffset: keepScrollOffset,
@@ -30,10 +26,18 @@ class ShopScrollPosition extends ScrollPosition
           debugLabel: debugLabel,
         ) {
     // 如果oldPosition不为null，则父级将首先调用Absorb()，它可以设置_pixels和_activity.
-    if (pixels == null && initialPixels != null) correctPixels(initialPixels);
-    if (activity == null) goIdle();
+    if (pixels == null && initialPixels != null) {
+      correctPixels(initialPixels);
+    }
+    if (activity == null) {
+      goIdle();
+    }
     assert(activity != null);
   }
+
+  final ShopScrollCoordinator coordinator; // 协调器
+  ScrollDragController _currentDrag;
+  double _heldPreviousVelocity = 0.0;
 
   @override
   AxisDirection get axisDirection => context.axisDirection;
@@ -69,26 +73,29 @@ class ShopScrollPosition extends ScrollPosition
   }
 
   /// 返回未使用的增量。
+  ///
   /// 正增量表示下降（在上方显示内容），负增量向上（在下方显示内容）。
   double applyClampedDragUpdate(double delta) {
     assert(delta != 0.0);
-    // 如果我们要朝向maxScrollExtent（负滚动偏移），那么我们在minScrollExtent方向上
-    // 可以达到的最大距离是负无穷大。 例如，如果我们已经过度滚动，则滚动以减少过度滚动不应禁止过度滚动。
-    // 如果我们要朝minScrollExtent（正滚动偏移量）方向移动，那么我们在minScrollExtent方向
-    // 上可以达到的最大距离是我们现在所处的位置（如果我们已经过度滚动）
-    // （在这种情况下，像素小于minScrollExtent），或者如果minScrollExtent可以 我们不是。
-    // 换句话说，我们不能通过applyClampedDragUpdate进入过滚动状态。
-    // 尽管如此，可能通过多种方式进入了过度滚动的情况。 一种是物理是否允许通过
-    // applyFullDragUpdate（请参见下文）。也可能会发生过度滚动的情况，例如 如果使用滚动控制器人工设置了滚动位置。
+    // 如果我们要朝向 maxScrollExtent（负滚动偏移），那么我们在 minScrollExtent 方向上
+    // 可以达到的最大距离是负无穷大。例如，如果我们已经过度滚动，则滚动以减少过度滚动不应
+    // 禁止过度滚动。如果我们要朝 minScrollExtent（正滚动偏移量）方向移动，那么我们在
+    // minScrollExtent 方向上可以达到的最大距离是我们现在所处的位置。
+    // 换句话说，我们不能通过 applyClampedDragUpdate 进入过滚动状态。
+    // 尽管如此，可能通过多种方式进入了过度滚动的情况。一种是物理是否允许通过
+    // applyFullDragUpdate（请参见下文）。
+    // 可能会发生过度滚动的情况，例如，使用滚动控制器人工设置了滚动位置。
     final double min =
         delta < 0.0 ? -double.infinity : math.min(minScrollExtent, pixels);
-    // max的逻辑是等效的，但反向。
+    // max 的逻辑是等效的，但反向。
     final double max =
         delta > 0.0 ? double.infinity : math.max(maxScrollExtent, pixels);
     final double oldPixels = pixels;
     final double newPixels = (pixels - delta).clamp(min, max) as double;
     final double clampedDelta = newPixels - pixels;
-    if (clampedDelta == 0.0) return delta;
+    if (clampedDelta == 0.0) {
+      return delta;
+    }
     final double overScroll = physics.applyBoundaryConditions(this, newPixels);
     final double actualNewPixels = newPixels - overScroll;
     final double offset = actualNewPixels - oldPixels;
@@ -99,14 +106,17 @@ class ShopScrollPosition extends ScrollPosition
     return delta + offset;
   }
 
-  // Returns the overScroll. 返回过度滚动。
+  // 返回过度滚动。
   double applyFullDragUpdate(double delta) {
     assert(delta != 0.0);
     final double oldPixels = pixels;
     // Apply friction: 施加摩擦：
     final double newPixels =
         pixels - physics.applyPhysicsToUserOffset(this, delta);
-    if (oldPixels == newPixels) return 0.0; // 增量一定很小，我们在添加浮点数时将其删除了
+    if (oldPixels == newPixels) {
+      // 增量一定很小，我们在添加浮点数时将其删除了
+      return 0.0;
+    }
     // Check for overScroll: 检查过度滚动：
     final double overScroll = physics.applyBoundaryConditions(this, newPixels);
     final double actualNewPixels = newPixels - overScroll;
@@ -117,15 +127,18 @@ class ShopScrollPosition extends ScrollPosition
     return overScroll;
   }
 
-  /// 当手指滑动时，该方法会获取到滑动距离
-  /// [delta]滑动距离，正增量表示下滑，负增量向上滑
-  /// 我们需要把子部件的 滑动数据 交给协调器处理，主部件无干扰
+  /// 当手指滑动时，该方法会获取到滑动距离。
+  ///
+  /// [delta] 滑动距离，正增量表示下滑，负增量向上滑。
+  ///
+  /// 我们需要把子部件的滑动数据交给协调器处理，主部件无干扰。
   @override
   void applyUserOffset(double delta) {
-    ScrollDirection userScrollDirection =
+    final ScrollDirection userScrollDirection =
         delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse;
-    if (debugLabel != coordinator.pageLabel)
+    if (debugLabel != coordinator.pageLabel) {
       return coordinator.applyUserOffset(delta, userScrollDirection, this);
+    }
     updateUserScrollDirection(userScrollDirection);
     setPixels(pixels - physics.applyPhysicsToUserOffset(this, delta));
   }
@@ -133,21 +146,27 @@ class ShopScrollPosition extends ScrollPosition
   @override
   void beginActivity(ScrollActivity newActivity) {
     _heldPreviousVelocity = 0.0;
-    if (newActivity == null) return;
+    if (newActivity == null) {
+      return;
+    }
     assert(newActivity.delegate == this);
     super.beginActivity(newActivity);
     _currentDrag?.dispose();
     _currentDrag = null;
-    if (!activity.isScrolling) updateUserScrollDirection(ScrollDirection.idle);
+    if (!activity.isScrolling) {
+      updateUserScrollDirection(ScrollDirection.idle);
+    }
   }
 
-  /// 将[用户滚动方向]设置为给定值。
-  /// 如果更改了该值，则将分派[User ScrollNotification]。
+  /// 将用户滚动方向设置为给定值。
+  /// 如果更改了该值，则将分派 [User ScrollNotification]。
   @protected
   @visibleForTesting
   void updateUserScrollDirection(ScrollDirection value) {
     assert(value != null);
-    if (userScrollDirection == value) return;
+    if (userScrollDirection == value) {
+      return;
+    }
     _userScrollDirection = value;
     didUpdateScrollDirection(value);
   }
@@ -155,8 +174,10 @@ class ShopScrollPosition extends ScrollPosition
   @override
   ScrollHoldController hold(VoidCallback holdCancelCallback) {
     final double previousVelocity = activity.velocity;
-    final HoldScrollActivity holdActivity =
-        HoldScrollActivity(delegate: this, onHoldCanceled: holdCancelCallback);
+    final HoldScrollActivity holdActivity = HoldScrollActivity(
+      delegate: this,
+      onHoldCanceled: holdCancelCallback,
+    );
     beginActivity(holdActivity);
     _heldPreviousVelocity = previousVelocity;
     return holdActivity;
@@ -182,17 +203,23 @@ class ShopScrollPosition extends ScrollPosition
     beginActivity(IdleScrollActivity(this));
   }
 
-  /// 以特定的速度开始一个物理驱动的模拟，该模拟确定[pixels]位置。
-  /// 此方法遵从[ScrollPhysics.createBallisticSimulation]，该方法通常在当前位置超出
+  /// 以特定的速度开始一个物理驱动的模拟，该模拟确定 [pixels] 位置。
+  /// 此方法遵从 [ScrollPhysics.createBallisticSimulation]，该方法通常在当前位置超出
   /// 范围时提供滑动模拟，而在当前位置超出范围但具有非零速度时提供摩擦模拟。
-  /// 速度应以每秒逻辑像素为单位。
+  /// 速度应以逻辑像素/秒为单位。
   @override
   void goBallistic(double velocity, [bool fromCoordinator = false]) {
     if (debugLabel != coordinator.pageLabel) {
-      if (velocity > 0.0) coordinator.goBallistic(velocity);
+      if (velocity > 0.0) {
+        coordinator.goBallistic(velocity);
+      }
     } else {
-      if (fromCoordinator && velocity <= 0.0) return;
-      if (coordinator.pageExpand == PageExpandState.Expanding) return;
+      if (fromCoordinator && velocity <= 0.0) {
+        return;
+      }
+      if (coordinator.pageExpand == PageExpandState.Expanding) {
+        return;
+      }
     }
     assert(pixels != null);
     final Simulation simulation =
