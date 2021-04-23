@@ -8,9 +8,9 @@ import 'shop/shop_scroll_coordinator.dart';
 import 'shop/shop_scroll_controller.dart';
 
 void main() => runApp(MyApp());
-MediaQueryData mediaQuery;
-double statusBarHeight;
-double screenHeight;
+MediaQueryData? mediaQuery;
+double? statusBarHeight;
+double? screenHeight;
 
 class MyApp extends StatelessWidget {
   @override
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
 }
 
 class ShopPage extends StatefulWidget {
-  ShopPage({Key key}) : super(key: key);
+  ShopPage({Key? key}) : super(key: key);
 
   @override
   _ShopPageState createState() => _ShopPageState();
@@ -34,14 +34,14 @@ class ShopPage extends StatefulWidget {
 class _ShopPageState extends State<ShopPage>
     with SingleTickerProviderStateMixin {
   ///页面滑动协调器
-  ShopScrollCoordinator _shopCoordinator;
-  ShopScrollController _pageScrollController;
+  late ShopScrollCoordinator _shopCoordinator;
+  ShopScrollController? _pageScrollController;
 
-  TabController _tabController;
+  late TabController _tabController;
 
   final double _sliverAppBarInitHeight = 200;
   final double _tabBarHeight = 50;
-  double _sliverAppBarMaxHeight;
+  double? _sliverAppBarMaxHeight;
 
   @override
   void initState() {
@@ -53,15 +53,15 @@ class _ShopPageState extends State<ShopPage>
   @override
   Widget build(BuildContext context) {
     mediaQuery ??= MediaQuery.of(context);
-    screenHeight ??= mediaQuery.size.height;
-    statusBarHeight ??= mediaQuery.padding.top;
+    screenHeight ??= mediaQuery!.size.height;
+    statusBarHeight ??= mediaQuery!.padding.top;
 
-    _sliverAppBarMaxHeight ??= screenHeight;
+    _sliverAppBarMaxHeight ??= screenHeight!;
     _pageScrollController ??= _shopCoordinator
-        .pageScrollController(_sliverAppBarMaxHeight - _sliverAppBarInitHeight);
+        .pageScrollController(_sliverAppBarMaxHeight! - _sliverAppBarInitHeight);
 
     _shopCoordinator.pinnedHeaderSliverHeightBuilder ??= () {
-      return statusBarHeight + kToolbarHeight + _tabBarHeight;
+      return statusBarHeight! + kToolbarHeight + _tabBarHeight;
     };
     return Scaffold(
       body: Listener(
@@ -123,7 +123,7 @@ class _ShopPageState extends State<ShopPage>
 
   @override
   void dispose() {
-    _tabController?.dispose();
+    _tabController.dispose();
     _pageScrollController?.dispose();
     super.dispose();
   }
@@ -131,9 +131,9 @@ class _ShopPageState extends State<ShopPage>
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverAppBarDelegate({
-    @required this.minHeight,
-    @required this.maxHeight,
-    @required this.child,
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
   });
 
   final double minHeight;

@@ -11,13 +11,13 @@ import 'shop_scroll_coordinator.dart';
 class ShopScrollPosition extends ScrollPosition
     implements ScrollActivityDelegate {
   ShopScrollPosition({
-    @required ScrollPhysics physics,
-    @required ScrollContext context,
+    required ScrollPhysics physics,
+    required ScrollContext context,
     double initialPixels = 0.0,
     bool keepScrollOffset = true,
-    ScrollPosition oldPosition,
-    String debugLabel,
-    @required this.coordinator,
+    ScrollPosition? oldPosition,
+    String? debugLabel,
+    required this.coordinator,
   }) : super(
           physics: physics,
           context: context,
@@ -26,9 +26,7 @@ class ShopScrollPosition extends ScrollPosition
           debugLabel: debugLabel,
         ) {
     // 如果oldPosition不为null，则父级将首先调用Absorb()，它可以设置_pixels和_activity.
-    if (pixels == null && initialPixels != null) {
-      correctPixels(initialPixels);
-    }
+    correctPixels(initialPixels);
     if (activity == null) {
       goIdle();
     }
@@ -36,7 +34,7 @@ class ShopScrollPosition extends ScrollPosition
   }
 
   final ShopScrollCoordinator coordinator; // 协调器
-  ScrollDragController _currentDrag;
+  ScrollDragController? _currentDrag;
   double _heldPreviousVelocity = 0.0;
 
   @override
@@ -44,7 +42,7 @@ class ShopScrollPosition extends ScrollPosition
 
   @override
   double setPixels(double newPixels) {
-    assert(activity.isScrolling);
+    assert(activity!.isScrolling);
     return super.setPixels(newPixels);
   }
 
@@ -55,13 +53,13 @@ class ShopScrollPosition extends ScrollPosition
       goIdle();
       return;
     }
-    activity.updateDelegate(this);
-    final ShopScrollPosition typedOther = other as ShopScrollPosition;
+    activity!.updateDelegate(this);
+    final ShopScrollPosition typedOther = other;
     _userScrollDirection = typedOther._userScrollDirection;
     assert(_currentDrag == null);
     if (typedOther._currentDrag != null) {
       _currentDrag = typedOther._currentDrag;
-      _currentDrag.updateDelegate(this);
+      _currentDrag!.updateDelegate(this);
       typedOther._currentDrag = null;
     }
   }
@@ -91,7 +89,7 @@ class ShopScrollPosition extends ScrollPosition
     final double max =
         delta > 0.0 ? double.infinity : math.max(maxScrollExtent, pixels);
     final double oldPixels = pixels;
-    final double newPixels = (pixels - delta).clamp(min, max) as double;
+    final double newPixels = (pixels - delta).clamp(min, max);
     final double clampedDelta = newPixels - pixels;
     if (clampedDelta == 0.0) {
       return delta;
@@ -144,7 +142,7 @@ class ShopScrollPosition extends ScrollPosition
   }
 
   @override
-  void beginActivity(ScrollActivity newActivity) {
+  void beginActivity(ScrollActivity? newActivity) {
     _heldPreviousVelocity = 0.0;
     if (newActivity == null) {
       return;
@@ -153,7 +151,7 @@ class ShopScrollPosition extends ScrollPosition
     super.beginActivity(newActivity);
     _currentDrag?.dispose();
     _currentDrag = null;
-    if (!activity.isScrolling) {
+    if (!activity!.isScrolling) {
       updateUserScrollDirection(ScrollDirection.idle);
     }
   }
@@ -163,7 +161,6 @@ class ShopScrollPosition extends ScrollPosition
   @protected
   @visibleForTesting
   void updateUserScrollDirection(ScrollDirection value) {
-    assert(value != null);
     if (userScrollDirection == value) {
       return;
     }
@@ -173,7 +170,7 @@ class ShopScrollPosition extends ScrollPosition
 
   @override
   ScrollHoldController hold(VoidCallback holdCancelCallback) {
-    final double previousVelocity = activity.velocity;
+    final double previousVelocity = activity!.velocity;
     final HoldScrollActivity holdActivity = HoldScrollActivity(
       delegate: this,
       onHoldCanceled: holdCancelCallback,
@@ -221,9 +218,8 @@ class ShopScrollPosition extends ScrollPosition
         return;
       }
     }
-    assert(pixels != null);
-    final Simulation simulation =
-        physics.createBallisticSimulation(this, velocity);
+    assert(hasPixels);
+    final Simulation? simulation = physics.createBallisticSimulation(this, velocity);
     if (simulation != null) {
       beginActivity(BallisticScrollActivity(this, simulation, context.vsync));
     } else {
@@ -247,8 +243,8 @@ class ShopScrollPosition extends ScrollPosition
   @override
   Future<void> animateTo(
     double to, {
-    @required Duration duration,
-    @required Curve curve,
+    required Duration duration,
+    required Curve curve,
   }) {
     if (nearEqual(to, pixels, physics.tolerance.distance)) {
       // 跳过动画，直接移到我们已经靠近的位置。
@@ -310,5 +306,10 @@ class ShopScrollPosition extends ScrollPosition
     description.add('$physics');
     description.add('$activity');
     description.add('$userScrollDirection');
+  }
+
+  /// 触控板手势
+  @override
+  void pointerScroll(double delta) {
   }
 }

@@ -26,10 +26,8 @@ class ShopScrollController extends ScrollController {
     bool keepScrollOffset = true,
 
     /// [toString] 输出中使用的标签。帮助在调试输出中标识滚动控制器实例。
-    String debugLabel,
-  })  : assert(initialScrollOffset != null),
-        assert(keepScrollOffset != null),
-        _initialScrollOffset = initialScrollOffset,
+    String? debugLabel,
+  })  : _initialScrollOffset = initialScrollOffset,
         super(keepScrollOffset: keepScrollOffset, debugLabel: debugLabel);
 
   final ShopScrollCoordinator coordinator;
@@ -92,20 +90,16 @@ class ShopScrollController extends ScrollController {
   @override
   Future<void> animateTo(
     double offset, {
-    @required Duration duration,
-    @required Curve curve,
+    required Duration duration,
+    required Curve curve,
   }) {
     assert(
       _positions.isNotEmpty,
       'ScrollController not attached to any scroll views.',
     );
-    final List<Future<void>> animations = List<Future<void>>(_positions.length);
-    for (int i = 0; i < _positions.length; i += 1)
-      animations[i] = _positions[i].animateTo(
-        offset,
-        duration: duration,
-        curve: curve,
-      );
+    final List<Future<void>> animations = List.generate(_positions.length,
+      (i) => _positions[i].animateTo(offset, duration: duration, curve: curve),
+    );
     return Future.wait<void>(animations).then<void>((List<void> _) => null);
   }
 
@@ -171,7 +165,7 @@ class ShopScrollController extends ScrollController {
   ShopScrollPosition createScrollPosition(
     ScrollPhysics physics,
     ScrollContext context,
-    ScrollPosition oldPosition,
+    ScrollPosition? oldPosition,
   ) {
     return ShopScrollPosition(
       coordinator: coordinator,
@@ -201,7 +195,7 @@ class ShopScrollController extends ScrollController {
   void debugFillDescription(List<String> description) {
     super.debugFillDescription(description);
     if (debugLabel != null) {
-      description.add(debugLabel);
+      description.add(debugLabel!);
     }
     if (initialScrollOffset != 0.0)
       description.add(
@@ -210,7 +204,7 @@ class ShopScrollController extends ScrollController {
       description.add('no clients');
     } else if (_positions.length == 1) {
       // 实际上不列出客户端本身，因为它的 toString 可能引用了我们。
-      description.add('one client, offset ${offset?.toStringAsFixed(1)}');
+      description.add('one client, offset ${offset.toStringAsFixed(1)}');
     } else {
       description.add('${_positions.length} clients');
     }

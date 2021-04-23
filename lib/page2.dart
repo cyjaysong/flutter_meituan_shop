@@ -6,15 +6,15 @@ import 'shop/shop_scroll_coordinator.dart';
 class Page2 extends StatefulWidget {
   final ShopScrollCoordinator shopCoordinator;
 
-  const Page2({@required this.shopCoordinator, Key key}) : super(key: key);
+  const Page2({required this.shopCoordinator, Key? key}) : super(key: key);
 
   @override
   _Page2State createState() => _Page2State();
 }
 
 class _Page2State extends State<Page2> {
-  ShopScrollCoordinator _shopCoordinator;
-  ShopScrollController _listScrollController;
+  late ShopScrollCoordinator _shopCoordinator;
+  late ShopScrollController _listScrollController;
 
   @override
   void initState() {
@@ -43,8 +43,7 @@ class _Page2State extends State<Page2> {
 
   @override
   void dispose() {
-    _listScrollController?.dispose();
-    _listScrollController = null;
+    _listScrollController.dispose();
     super.dispose();
   }
 }

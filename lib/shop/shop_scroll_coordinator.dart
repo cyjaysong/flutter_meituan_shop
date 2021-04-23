@@ -13,19 +13,19 @@ enum PageExpandState { NotExpand, Expanding, Expanded }
 class ShopScrollCoordinator {
   final String pageLabel = 'page';
 
-  ShopScrollController _pageScrollController;
-  double Function() pinnedHeaderSliverHeightBuilder;
+  late ShopScrollController _pageScrollController;
+  double Function()? pinnedHeaderSliverHeightBuilder;
 
   ShopScrollPosition get _pageScrollPosition => _pageScrollController.position;
 
-  ScrollDragController scrollDragController;
+  ScrollDragController? scrollDragController;
 
   /// 主页面滑动部件默认位置
-  double _pageInitialOffset;
+  late double _pageInitialOffset;
 
   /// 获取主页面滑动控制器
   ShopScrollController pageScrollController([double initialOffset = 0.0]) {
-    assert(initialOffset != null, initialOffset >= 0.0);
+    assert(initialOffset >= 0.0);
     _pageInitialOffset = initialOffset;
     _pageScrollController = ShopScrollController(
       this,
@@ -36,7 +36,7 @@ class ShopScrollCoordinator {
   }
 
   /// 创建并获取一个子滑动控制器
-  ShopScrollController newChildScrollController([String debugLabel]) =>
+  ShopScrollController newChildScrollController([String? debugLabel]) =>
       ShopScrollController(this, debugLabel: debugLabel);
 
   /// 子部件滑动数据协调
@@ -44,10 +44,10 @@ class ShopScrollCoordinator {
   /// [userScrollDirection] 用户滑动方向
   /// [position] 被滑动的子部件的位置信息
   void applyUserOffset(
-    double delta, [
+    double delta,
     ScrollDirection userScrollDirection,
     ShopScrollPosition position,
-  ]) {
+  ) {
     if (userScrollDirection == ScrollDirection.reverse) {
       updateUserScrollDirection(_pageScrollPosition, userScrollDirection);
       final double innerDelta =
@@ -69,7 +69,7 @@ class ShopScrollCoordinator {
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent,
       ShopScrollPosition position) {
     if (pinnedHeaderSliverHeightBuilder != null) {
-      maxScrollExtent = maxScrollExtent - pinnedHeaderSliverHeightBuilder();
+      maxScrollExtent = maxScrollExtent - pinnedHeaderSliverHeightBuilder!();
       maxScrollExtent = math.max(0.0, maxScrollExtent);
     }
     return position.applyContentDimensions(
@@ -112,7 +112,6 @@ class ShopScrollCoordinator {
   /// 更新用户滑动方向
   void updateUserScrollDirection(
       ShopScrollPosition position, ScrollDirection value) {
-    assert(position != null && value != null);
     position.didUpdateScrollDirection(value);
   }
 

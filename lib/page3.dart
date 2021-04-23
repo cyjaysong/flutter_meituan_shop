@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'shop/shop_scroll_controller.dart';
-import 'shop/shop_scroll_coordinator.dart';
-
 class Page3 extends StatefulWidget {
-  const Page3({Key key}) : super(key: key);
+  const Page3({Key? key}) : super(key: key);
 
   @override
   _Page3State createState() => _Page3State();
