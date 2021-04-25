@@ -100,7 +100,7 @@ class ShopScrollController extends ScrollController {
     final List<Future<void>> animations = List.generate(_positions.length,
       (i) => _positions[i].animateTo(offset, duration: duration, curve: curve),
     );
-    return Future.wait<void>(animations).then<void>((List<void> _) => null);
+    return Future.wait<void>(animations);
   }
 
   /// 将滚动位置从其当前值跳转到给定值，而不进行动画处理，也无需检查新值是否在范围内。

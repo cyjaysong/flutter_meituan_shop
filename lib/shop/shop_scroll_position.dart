@@ -26,7 +26,7 @@ class ShopScrollPosition extends ScrollPosition
           debugLabel: debugLabel,
         ) {
     // 如果oldPosition不为null，则父级将首先调用Absorb()，它可以设置_pixels和_activity.
-    correctPixels(initialPixels);
+    if (!hasPixels) correctPixels(initialPixels);
     if (activity == null) {
       goIdle();
     }
@@ -219,7 +219,8 @@ class ShopScrollPosition extends ScrollPosition
       }
     }
     assert(hasPixels);
-    final Simulation? simulation = physics.createBallisticSimulation(this, velocity);
+    final Simulation? simulation =
+        physics.createBallisticSimulation(this, velocity);
     if (simulation != null) {
       beginActivity(BallisticScrollActivity(this, simulation, context.vsync));
     } else {
@@ -311,5 +312,20 @@ class ShopScrollPosition extends ScrollPosition
   /// 触控板手势
   @override
   void pointerScroll(double delta) {
+    assert(delta != 0.0);
+
+    final double targetPixels =
+        math.min(math.max(pixels + delta, minScrollExtent), maxScrollExtent);
+    if (targetPixels != pixels) {
+      goIdle();
+      updateUserScrollDirection(
+          -delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
+      final double oldPixels = pixels;
+      forcePixels(targetPixels);
+      didStartScroll();
+      didUpdateScrollPositionBy(pixels - oldPixels);
+      didEndScroll();
+      goBallistic(0.0);
+    }
   }
 }
